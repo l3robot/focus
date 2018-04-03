@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import os
+import subprocess
 import argparse
 
 
+SHELL = "/bin/zsh"
 LOCATION = os.path.join(os.environ['HOME'], ".focusbyl3robot")
 HEADER = "!-"
 TAIL = "-!"
@@ -63,7 +65,7 @@ class FocusFile():
         if name in self.projects:
             commands = self.projects[name]
             for command in commands:
-                os.system(command)
+                subprocess.call([SHELL, '-i', '-c', *command.split(' ')])
         else:
             print(' [!]: no project named {}'.format(name))
             exit()
