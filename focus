@@ -60,6 +60,19 @@ class FocusFile():
         self.projects[name] = commands
         self.__save_projects()
 
+    def list(self):
+        for i, name in enumerate(self.projects):
+            print(' [{}]: {}'.format(i, name))
+
+    def rm(self, name):
+        if name in self.projects:
+            print(' [-]: deleting project \"{}\"'.format(name))
+            del self.projects[name]
+            self.__save_projects()
+        else:
+            print(' [!]: no project named {}'.format(name))
+            exit()
+
     def open(self, name):
         if name in self.projects:
             print(' [-]: opening project \"{}\"'.format(name))
@@ -74,13 +87,17 @@ class FocusFile():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='qNet: Control the qualityNet')
     parser.add_argument('command', help='command', type=str)
-    parser.add_argument('arg', help='command argument', type=str)
+    parser.add_argument('arg', help='command argument', type=str) ## TODO:optional for list
     args = parser.parse_args()
 
     file = FocusFile(LOCATION)
 
     if args.command == 'add':
         file.add(args.arg)
+    elif args.command == 'list':
+        file.list()
+    elif args.command == 'rm':
+        file.rm(args.arg)
     elif args.command == 'open':
         file.open(args.arg)
     else:
