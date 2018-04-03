@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+import os
+import argparse
+
+
+LOCATION = os.path.join(os.environ['HOME'], ".focusbyl3robot")
+HEADER = "!-"
+TAIL = "-!"
+
+class FocusFile():
+
+    def __init__(self, location):
+        self.location = location
+        open(self.location, 'a').close()
+        self.__load_projects()
+
+    def __load_project(self, content):
+        parts = content.split(';')
+        return parts[0], parts[1:]
+
+    def __load_projects(self):
+        self.projects = {}
+        with open(self.location, 'r') as f:
+            content = f.read()
+        start = content.find(HEADER)
+        while start != -1:
+            end = content.find(TAIL, start)
+            name, commands = self.__load_project(content[start+2:end])
+            self.projects[name] = commands
+            start = content.find(HEADER, end)
+
+    def __save_project(self, name, commands):
+        return '!-{};{}-!'.format(name, ';'.join(commands))
+
+    def __save_projects(self):
+        content = []
+        for name, commands in self.projects.items():
+            content.append(self.__save_project(name, commands))
+        with open(self.location, 'w') as f:
+            f.write('\n'.join(content))
+
+    def add(self, name):
+        if name in self.projects:
+            print(' [!]: a project with name {} already exists'.format(name))
+            exit()
+        if '!-' in name or '-!' in name or ';' in name:
+            print(' [!]: name {} invalid'.format(name))
+            exit()
+        commands = []
+        command = input(' [-]: add a command: ')
+        while command != 'q':
+            if '!-' in command or '-!' in command or ';' in command:
+                print(' [!]: command {} invalid'.format(command))
+                continue
+            print(' [-]: adding command \"{}\"'.format(command))
+            commands.append(command)
+            command = input(' [-]: add a command: ')
+        self.projects[name] = commands
+        self.__save_projects()
+
+    def open(self, name):
+        print(self.projects)
+        if name in self.projects:
+            commands = self.projects[name]
+            for command in commands:
+                os.system(command)
+        else:
+            print(' [!]: no project named {}'.format(name))
+            exit()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='qNet: Control the qualityNet')
+    parser.add_argument('command', help='command', type=str)
+    parser.add_argument('arg', help='command argument', type=str)
+    args = parser.parse_args()
+
+    file = FocusFile(LOCATION)
+
+    if args.command == 'add':
+        file.add(args.arg)
+    elif args.command == 'open':
+        file.open(args.arg)
+    else:
+        print(' [!]: {} not a valid command'.format(command))
+        exit()
+
+
+
+
+
+
+
