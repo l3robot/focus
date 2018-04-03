@@ -61,11 +61,12 @@ class FocusFile():
         self.__save_projects()
 
     def open(self, name):
-        print(self.projects)
         if name in self.projects:
+            print(' [-]: opening project \"{}\"'.format(name))
             commands = self.projects[name]
             for command in commands:
-                subprocess.call([SHELL, '-i', '-c', *command.split(' ')])
+                called = [SHELL, '-i', '-c', command]
+                subprocess.call(called)
         else:
             print(' [!]: no project named {}'.format(name))
             exit()
